@@ -37,9 +37,9 @@ local passes = {}
 function passes.optimize(ast)
   if std.config["task-inlines"] then ast = inline_tasks.entry(ast) end
   ast = flow_from_ast.entry(ast)
-  ast = flow_loop_fusion.entry(ast)
-  ast = flow_task_fusion.entry(ast)
-  ast = flow_dead_code_elimination.entry(ast)
+  -- ast = flow_loop_fusion.entry(ast)
+  -- ast = flow_task_fusion.entry(ast)
+  -- ast = flow_dead_code_elimination.entry(ast)
   ast = flow_to_ast.entry(ast)
   if std.config["index-launches"] then ast = optimize_loops.entry(ast) end
   if std.config["futures"] then ast = optimize_futures.entry(ast) end

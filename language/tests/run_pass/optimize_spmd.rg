@@ -51,15 +51,12 @@ task main()
 
   __demand(__spmd)
   for t = tinit, tfinal do
-    __demand(__parallel)
     for i = 0, 3 do
       inc(p[i], 1)
     end
-    __demand(__parallel)
     for i = 0, 3 do
       inc(p[i], 20)
     end
-    __demand(__parallel)
     for i = 0, 3 do
       inc(p[i], 300)
     end

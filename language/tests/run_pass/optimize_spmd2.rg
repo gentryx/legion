@@ -72,13 +72,13 @@ task main()
 
   __demand(__spmd)
   for t = 0, 10 do
-    for i = 0, 4 do
+    for i = start, stop do
       inc(p[i], 1)
     end
-    for i = 0, 4 do
+    for i = start, stop do
       inc(p[i], 20)
     end
-    for i = 0, 4 do
+    for i = start, stop do
       inc(p[i], 300)
     end
   end

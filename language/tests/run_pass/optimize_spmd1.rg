@@ -17,7 +17,10 @@
 
 import "regent"
 
--- This tests the SPMD optimization of the compiler.
+-- This tests the SPMD optimization of the compiler with:
+--   * disjoint regions
+--   * multiple read-write tasks
+--   * constant loop bounds
 
 local c = regentlib.c
 

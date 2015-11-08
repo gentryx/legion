@@ -12,15 +12,14 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
+-- runs-with:
+-- [["-ll:cpu", "4"]]
+
 import "regent"
 
 -- This tests the SPMD optimization of the compiler.
 
 local c = regentlib.c
-
-function raw(t)
-  return terra(x : t) return x.__ptr end
-end
 
 task inc(r : region(int), y : int)
 where reads(r), writes(r) do
@@ -36,14 +35,14 @@ task main()
   var x2 = new(ptr(int, r))
 
   var rc = c.legion_coloring_create()
-  c.legion_coloring_add_point(rc, 0, [raw(ptr(int, r))](x0))
-  c.legion_coloring_add_point(rc, 1, [raw(ptr(int, r))](x1))
-  c.legion_coloring_add_point(rc, 2, [raw(ptr(int, r))](x2))
+  c.legion_coloring_add_point(rc, 0, __raw(x0))
+  c.legion_coloring_add_point(rc, 1, __raw(x1))
+  c.legion_coloring_add_point(rc, 2, __raw(x2))
   var p = partition(disjoint, r, rc)
   c.legion_coloring_destroy(rc)
 
   for x in r do
-    @x = 0
+    @x = 70000
   end
 
   var tinit = 0
@@ -63,7 +62,7 @@ task main()
   end
 
   for x in r do
-    regentlib.assert(@x == 3210, "test failed")
+    regentlib.assert(@x == 73210, "test failed")
   end
 end
 regentlib.start(main)

@@ -27,19 +27,42 @@ import "regent"
 
 local c = regentlib.c
 
-task inc(r : region(int), y : int)
-where reads(r), writes(r) do
+struct t {
+  a : int,
+  b : int,
+  c : int,
+}
+
+task inc_ab(r : region(t), y : int)
+where reads writes(r.{a, b}) do
   for x in r do
-    @x += y
+    x.a += y
+    x.b += y
+  end
+end
+
+task inc_bc(r : region(t), y : int)
+where reads writes(r.{b, c}) do
+  for x in r do
+    x.b += y
+    x.c += y
+  end
+end
+
+task inc_ca(r : region(t), y : int)
+where reads writes(r.{c, a}) do
+  for x in r do
+    x.c += y
+    x.a += y
   end
 end
 
 task main()
-  var r = region(ispace(ptr, 5), int)
-  var x0 = new(ptr(int, r))
-  var x1 = new(ptr(int, r))
-  var x2 = new(ptr(int, r))
-  var x3 = new(ptr(int, r))
+  var r = region(ispace(ptr, 5), t)
+  var x0 = new(ptr(t, r))
+  var x1 = new(ptr(t, r))
+  var x2 = new(ptr(t, r))
+  var x3 = new(ptr(t, r))
 
   var cp = c.legion_coloring_create()
   c.legion_coloring_add_point(cp, 0, __raw(x0))
@@ -49,42 +72,49 @@ task main()
   var p = partition(disjoint, r, cp)
   c.legion_coloring_destroy(cp)
 
-  var cq = c.legion_coloring_create()
-  c.legion_coloring_add_point(cq, 0, __raw(x0))
-  c.legion_coloring_add_point(cq, 0, __raw(x1))
-  c.legion_coloring_add_point(cq, 1, __raw(x0))
-  c.legion_coloring_add_point(cq, 1, __raw(x1))
-  c.legion_coloring_add_point(cq, 1, __raw(x2))
-  c.legion_coloring_add_point(cq, 2, __raw(x1))
-  c.legion_coloring_add_point(cq, 2, __raw(x2))
-  c.legion_coloring_add_point(cq, 2, __raw(x3))
-  c.legion_coloring_add_point(cq, 3, __raw(x2))
-  c.legion_coloring_add_point(cq, 3, __raw(x3))
-  var q = partition(aliased, r, cq)
-  c.legion_coloring_destroy(cq)
+  -- var cq = c.legion_coloring_create()
+  -- c.legion_coloring_add_point(cq, 0, __raw(x0))
+  -- c.legion_coloring_add_point(cq, 0, __raw(x1))
+  -- c.legion_coloring_add_point(cq, 1, __raw(x0))
+  -- c.legion_coloring_add_point(cq, 1, __raw(x1))
+  -- c.legion_coloring_add_point(cq, 1, __raw(x2))
+  -- c.legion_coloring_add_point(cq, 2, __raw(x1))
+  -- c.legion_coloring_add_point(cq, 2, __raw(x2))
+  -- c.legion_coloring_add_point(cq, 2, __raw(x3))
+  -- c.legion_coloring_add_point(cq, 3, __raw(x2))
+  -- c.legion_coloring_add_point(cq, 3, __raw(x3))
+  -- var q = partition(aliased, r, cq)
+  -- c.legion_coloring_destroy(cq)
 
   for x in r do
-    @x = 70000
+    x.a = 30000
+    x.b = 50000
+    x.c = 70000
   end
 
   var start = 0
   var stop = 4
+  var inc_by_ab = 1
+  var inc_by_bc = 20
+  var inc_by_ca = 300
 
   __demand(__spmd)
   for t = 0, 10 do
     for i = start, stop do
-      inc(p[i], 1)
+      inc_ab(p[i], inc_by_ab)
     end
     for i = start, stop do
-      inc(p[i], 20)
+      inc_bc(p[i], inc_by_bc)
     end
     for i = start, stop do
-      inc(p[i], 300)
+      inc_ca(p[i], inc_by_ca)
     end
   end
 
   for x in r do
-    regentlib.assert(@x == 73210, "test failed")
+    regentlib.assert(x.a == 33010, "test failed")
+    regentlib.assert(x.b == 50210, "test failed")
+    regentlib.assert(x.c == 73200, "test failed")
   end
 end
 regentlib.start(main)

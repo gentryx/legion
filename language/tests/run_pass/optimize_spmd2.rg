@@ -72,20 +72,6 @@ task main()
   var p = partition(disjoint, r, cp)
   c.legion_coloring_destroy(cp)
 
-  -- var cq = c.legion_coloring_create()
-  -- c.legion_coloring_add_point(cq, 0, __raw(x0))
-  -- c.legion_coloring_add_point(cq, 0, __raw(x1))
-  -- c.legion_coloring_add_point(cq, 1, __raw(x0))
-  -- c.legion_coloring_add_point(cq, 1, __raw(x1))
-  -- c.legion_coloring_add_point(cq, 1, __raw(x2))
-  -- c.legion_coloring_add_point(cq, 2, __raw(x1))
-  -- c.legion_coloring_add_point(cq, 2, __raw(x2))
-  -- c.legion_coloring_add_point(cq, 2, __raw(x3))
-  -- c.legion_coloring_add_point(cq, 3, __raw(x2))
-  -- c.legion_coloring_add_point(cq, 3, __raw(x3))
-  -- var q = partition(aliased, r, cq)
-  -- c.legion_coloring_destroy(cq)
-
   for x in r do
     x.a = 30000
     x.b = 50000

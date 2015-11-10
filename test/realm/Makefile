@@ -32,10 +32,10 @@ GEN_GPU_SRC	:=				# .cu files
 
 # You can modify these variables, some will be appended to by the runtime makefile
 INC_FLAGS	:=
-CC_FLAGS	?=
+CC_FLAGS	?= `pkg-config --cflags libgeodecomp`
 NVCC_FLAGS	:=
 GASNET_FLAGS	:=
-LD_FLAGS	:=
+LD_FLAGS	:= `pkg-config --libs libgeodecomp`
 
 CXX ?= g++
 
@@ -51,7 +51,7 @@ override CC_FLAGS := $(filter-out -DBOUNDS_CHECKS, \
                      $(filter-out -DLEGION_SPY, \
                        $(CC_FLAGS))))
 
-TESTS := serializing test_profiling ctxswitch proc_group barrier_reduce
+TESTS := elementmask serializing test_profiling ctxswitch proc_group barrier_reduce
 
 # can set arguments to be passed to a test when running
 TESTARGS_ctxswitch := -ll:io 1 -t 20 -i 10000
